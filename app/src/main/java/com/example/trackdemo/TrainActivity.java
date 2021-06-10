@@ -5,8 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -26,12 +28,14 @@ import com.example.trackdemo.constant.traintype;
 import com.example.trackdemo.db.LocalDBHelper;
 import com.example.trackdemo.dialog.LockDialog;
 import com.example.trackdemo.dialog.PauseDialog;
+import com.example.trackdemo.fragments.MapFragment;
 import com.example.trackdemo.fragments.TrainDataFragment;
 import com.example.trackdemo.fragments.TrainResultFragment;
 import com.example.trackdemo.fragments.TrainSplashFragment;
 import com.example.trackdemo.fragments.TrainTrackerFragment;
 import com.example.trackdemo.service.LocationUpdatesService;
 import com.example.trackdemo.service.PermissionHelper;
+import com.example.trackdemo.service.TrackerIconHelper;
 
 import java.util.List;
 import java.util.Timer;
@@ -221,12 +225,40 @@ public class TrainActivity extends FragmentActivity implements View.OnClickListe
      */
     private void doFinishTrain() {
         doPauseTrain();
-        trainResultFragment.setListener(feel -> {
-            trainData.feel = feel;
-            trainData.locations = trainTrackerFragment.getmMapFragment().getmCurLocations();
-            trainData.url = null;
-            doRecordUpdate(trainData);
-            finish();
+
+        trainResultFragment.setListener(new TrainResultFragment.Listener() {
+            @Override
+            public void onClickExits(String feel) {
+                trainData.feel = feel;
+                trainData.locations = trainTrackerFragment.getmMapFragment().getmCurLocations();
+                if (TextUtils.isEmpty(trainData.url)) {
+                    trainResultFragment.getmMapFragment().getSnapShot(new MapFragment.SnapShotListener() {
+                        @Override
+                        public void onSnapShotReady(Uri uri) {
+                            if (uri != null) {
+                                trainData.url = uri.getPath();
+                            }
+                            doRecordUpdate(trainData);
+                            finish();
+                        }
+                    });
+                    return;
+                }
+                doRecordUpdate(trainData);
+                finish();
+            }
+
+            @Override
+            public void onMapShown() {
+                trainResultFragment.getmMapFragment().getSnapShot(new MapFragment.SnapShotListener() {
+                    @Override
+                    public void onSnapShotReady(Uri uri) {
+                        if (uri != null) {
+                            trainData.url = uri.getPath();
+                        }
+                    }
+                });
+            }
         });
         trainData.date = System.currentTimeMillis();
         trainResultFragment.setResultMap(trainTrackerFragment.getmMapFragment().getmCurLocations());

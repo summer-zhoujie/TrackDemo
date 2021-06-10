@@ -38,7 +38,6 @@ public class TrainResultFragment extends Fragment implements View.OnClickListene
     private Listener listener;
     private EditText etFeel;
     private TextView tvDate;
-    private MapFragment mapFragment;
     private MapFragment mMapFragment;
     private List<Location> locations;
     private TrainData trainData;
@@ -46,13 +45,25 @@ public class TrainResultFragment extends Fragment implements View.OnClickListene
 
     public interface Listener {
 
+        /**
+         * 点击退出
+         */
         void onClickExits(String feel);
+
+        /**
+         * map完全展示出来
+         */
+        void onMapShown();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_result, container, false);
+    }
+
+    public MapFragment getmMapFragment() {
+        return mMapFragment;
     }
 
     @Override
@@ -74,15 +85,21 @@ public class TrainResultFragment extends Fragment implements View.OnClickListene
         tvRightUnit = view.findViewById(R.id.tv_right_unit);
 
         mMapFragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.map_fragment);
-        tvDate.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mMapFragment.regiterListener(() -> {
-                    mMapFragment.setLocations(TrainResultFragment.this.locations);
-                    mMapFragment.transformToResult();
+        tvDate.postDelayed(() -> {
+            mMapFragment.regiterListener(() -> {
+                mMapFragment.setLocations(TrainResultFragment.this.locations);
+                mMapFragment.transformToResult();
+                tvDate.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (listener != null) {
+                            listener.onMapShown();
+                        }
+                    }
                 });
-                mMapFragment.initMap();
-            }
+
+            });
+            mMapFragment.initMap();
         }, 0);
 
         updateTrainDataIfViewCreated(trainData);

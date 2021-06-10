@@ -1,7 +1,9 @@
 package com.example.trackdemo.fragments;
 
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -19,6 +21,7 @@ import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 
 import com.example.trackdemo.R;
+import com.example.trackdemo.service.TrackerIconHelper;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -97,6 +100,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
      * 记录当前地图状态, true 代表已准备好
      */
     private int mapStatus = NONE;
+    private SupportMapFragment mapFragment;
 
     /**
      * 定义地图的加载状态
@@ -117,7 +121,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
 
         ivMyLocation = view.findViewById(R.id.iv_mylocation);
         ivMyLocation.setOnClickListener(this);
@@ -143,6 +146,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
         }
     }
 
+    public void getSnapShot(SnapShotListener listener) {
+
+        mMap.snapshot(new GoogleMap.SnapshotReadyCallback() {
+            @Override
+            public void onSnapshotReady(@Nullable Bitmap bitmap) {
+                final Uri uri = TrackerIconHelper.saveBitmap(bitmap, getActivity());
+                if (listener != null) {
+                    listener.onSnapShotReady(uri);
+                }
+            }
+        });
+    };
+
+    public static interface SnapShotListener{
+        void onSnapShotReady(Uri uri);
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // out-funcs
@@ -206,7 +225,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
             return;
         }
         mapStatus = LOADING;
-        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.googlemap);
+        mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.googlemap);
         mapFragment.getMapAsync(MapFragment.this);
     }
 

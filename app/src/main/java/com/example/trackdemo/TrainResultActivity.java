@@ -38,6 +38,11 @@ public class TrainResultActivity extends AppCompatActivity {
                 public void onClickExits(String feel) {
                     finish();
                 }
+
+                @Override
+                public void onMapShown() {
+
+                }
             });
         }
     }
