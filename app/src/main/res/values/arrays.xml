@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="target_choose_array" >
+        <item>目标距离</item>
+        <item>目标时间</item>
+        <item>目标卡路里</item>
+        <item>未设置目标</item>
+    </string-array>
+    <string-array name="traintypes_choose_array" >
+        <item>步行</item>
+        <item>跑步</item>
+        <item>骑行</item>
+    </string-array>
+</resources>
