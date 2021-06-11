@@ -63,6 +63,7 @@ public class TrackerIconHelper {
             //存储完成后需要清除相关的进程
             fileOutputStream.flush();
             fileOutputStream.close();
+            bitmap.recycle();
             //保存图片后发送广播通知更新数据库
             return Uri.fromFile(path);
         } catch (FileNotFoundException e) {
